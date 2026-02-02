@@ -29,7 +29,7 @@ func (usr *userService) Register(req models.RegisterUser) error {
 		return err
 	}
 
-	user, _ := usr.userRepo.GetUserByNameORPhone(req.Username, req.Phone)
+	user, _ := usr.userRepo.GetUserByNameOrPhone(req.Username, req.Phone)
 	if user.ID != "" {
 		if user.Username == req.Username {
 			return fmt.Errorf("username already exists")

@@ -35,7 +35,7 @@ func (usr *userRepo) Register(user models.User) error {
 
 }
 
-func (usr *userRepo) GetUserByNameORPhone(username, phone string) (models.User, error) {
+func (usr *userRepo) GetUserByNameOrPhone(username, phone string) (models.User, error) {
 	row, err := usr.db.Query("SELECT * FROM users WHERE username=? OR phone=?", username, phone)
 	if err != nil {
 		return models.User{}, fmt.Errorf("failed to get user by username")
