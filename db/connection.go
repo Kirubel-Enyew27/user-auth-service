@@ -21,5 +21,9 @@ func Connect(cfg config.Config) (*sql.DB, error) {
 		return DB, fmt.Errorf("failed to ping DB: %v", err)
 	}
 
+	if err := CreateTables(DB); err != nil {
+		return DB, fmt.Errorf("failed to create table: %v", err)
+	}
+
 	return DB, nil
 }
