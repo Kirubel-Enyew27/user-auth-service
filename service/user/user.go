@@ -1,6 +1,7 @@
 package user
 
 import (
+	"fmt"
 	"time"
 	"user-auth-service/models"
 	"user-auth-service/repo"
@@ -28,12 +29,20 @@ func (usr *userService) Register(req models.RegisterUser) error {
 		return err
 	}
 
+	user, _ := usr.userRepo.GetUserByNameORPhone(req.Username, req.Phone)
+	if user.ID != "" {
+		if user.Username == req.Username {
+			return fmt.Errorf("username already exists")
+		}
+		return fmt.Errorf("phone alreaady registered")
+	}
+
 	hashedPassword, err := utils.HashPassword(req.Password)
 	if err != nil {
 		return err
 	}
 
-	user := models.User{
+	user = models.User{
 		ID:        uuid.NewString(),
 		Username:  req.Username,
 		Password:  hashedPassword,

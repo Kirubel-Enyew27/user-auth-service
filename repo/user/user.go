@@ -2,6 +2,7 @@ package user
 
 import (
 	"database/sql"
+	"fmt"
 	"user-auth-service/models"
 	"user-auth-service/repo"
 
@@ -33,3 +34,22 @@ func (usr *userRepo) Register(user models.User) error {
 	return nil
 
 }
+
+func (usr *userRepo) GetUserByNameORPhone(username, phone string) (models.User, error) {
+	row, err := usr.db.Query("SELECT * FROM users WHERE username=? OR phone=?", username, phone)
+	if err != nil {
+		return models.User{}, fmt.Errorf("failed to get user by username")
+	}
+	defer row.Close()
+
+	var user models.User
+
+	err = row.Scan(&user.ID, &user.Username, &user.Password, &user.Phone, &user.Email, &user.Role, &user.Status, &user.CreatedAt)
+	if err != nil {
+		return models.User{}, err
+	}
+
+	return user, nil
+}
+
+
