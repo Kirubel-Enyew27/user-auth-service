@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"user-auth-service/handler"
 	"user-auth-service/models"
+	"user-auth-service/pkg/response"
 	"user-auth-service/service"
 
 	"github.com/gin-gonic/gin"
@@ -26,15 +27,20 @@ func (usr *userHandler) Register(c *gin.Context) {
 	var req models.RegisterUser
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		usr.logger.Error("failed to bind request")
+		response.SendErrorResponse(c, &response.ErrorResponse{
+			StatusCode: http.StatusBadRequest,
+			Message:    err.Error(),
+		})
 		return
 	}
 
-	err := usr.userService.Register(req)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	errResp := usr.userService.Register(req)
+	if errResp.Message != "" {
+		response.SendErrorResponse(c, &errResp)
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"msg": "user created successfully"})
+	response.SendSuccessResponse(c, http.StatusCreated, nil, nil)
+
 }

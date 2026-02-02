@@ -1,8 +1,11 @@
 package repo
 
-import "user-auth-service/models"
+import (
+	"user-auth-service/models"
+	"user-auth-service/pkg/response"
+)
 
 type User interface {
-	Register(user models.User) error
-	GetUserByNameOrPhone(username, phone string) (models.User, error)
+	Register(user models.User) response.ErrorResponse
+	GetUserByNameOrPhone(username, phone string) (models.User, response.ErrorResponse)
 }

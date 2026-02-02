@@ -1,7 +1,10 @@
 package service
 
-import "user-auth-service/models"
+import (
+	"user-auth-service/models"
+	"user-auth-service/pkg/response"
+)
 
 type User interface {
-	Register(req models.RegisterUser) error
+	Register(req models.RegisterUser) response.ErrorResponse
 }

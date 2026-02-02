@@ -2,8 +2,9 @@ package user
 
 import (
 	"database/sql"
-	"fmt"
+	"net/http"
 	"user-auth-service/models"
+	"user-auth-service/pkg/response"
 	"user-auth-service/repo"
 
 	"go.uber.org/zap"
@@ -20,7 +21,7 @@ func NewRepo(db *sql.DB, logger *zap.Logger) repo.User {
 		logger: logger,
 	}
 }
-func (usr *userRepo) Register(user models.User) error {
+func (usr *userRepo) Register(user models.User) response.ErrorResponse {
 	createUserSql := `
 	INSERT INTO users(id, username, password, phone, email, role, status, created_at)
 	VALUES (&1, &2, &3, &4, &5, &6, &7, &8)
@@ -28,17 +29,25 @@ func (usr *userRepo) Register(user models.User) error {
 
 	_, err := usr.db.Exec(createUserSql, user.ID, user.Username, user.Password, user.Phone, user.Email, user.Role, user.Status, user.CreatedAt)
 	if err != nil {
-		return err
+		usr.logger.Error("failed to create user account", zap.Error(err))
+		return response.ErrorResponse{
+			StatusCode: http.StatusInternalServerError,
+			Message:    "failed to create user account",
+		}
 	}
 
-	return nil
+	return response.ErrorResponse{}
 
 }
 
-func (usr *userRepo) GetUserByNameOrPhone(username, phone string) (models.User, error) {
+func (usr *userRepo) GetUserByNameOrPhone(username, phone string) (models.User, response.ErrorResponse) {
 	row, err := usr.db.Query("SELECT * FROM users WHERE username=? OR phone=?", username, phone)
 	if err != nil {
-		return models.User{}, fmt.Errorf("failed to get user by username")
+		usr.logger.Error("failed to get user by phone or username", zap.Error(err))
+		return models.User{}, response.ErrorResponse{
+			StatusCode: http.StatusInternalServerError,
+			Message:    "failed to get user",
+		}
 	}
 	defer row.Close()
 
@@ -46,10 +55,12 @@ func (usr *userRepo) GetUserByNameOrPhone(username, phone string) (models.User, 
 
 	err = row.Scan(&user.ID, &user.Username, &user.Password, &user.Phone, &user.Email, &user.Role, &user.Status, &user.CreatedAt)
 	if err != nil {
-		return models.User{}, err
+		usr.logger.Error("failed to scan user rows", zap.Error(err))
+		return models.User{}, response.ErrorResponse{
+			StatusCode: http.StatusInternalServerError,
+			Message:    "failed to scan user rows",
+		}
 	}
 
-	return user, nil
+	return user, response.ErrorResponse{}
 }
-
-

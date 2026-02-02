@@ -1,9 +1,10 @@
 package user
 
 import (
-	"fmt"
+	"net/http"
 	"time"
 	"user-auth-service/models"
+	"user-auth-service/pkg/response"
 	"user-auth-service/repo"
 	"user-auth-service/service"
 	"user-auth-service/utils"
@@ -24,22 +25,38 @@ func NewService(userRepo repo.User, logger *zap.Logger) service.User {
 	}
 }
 
-func (usr *userService) Register(req models.RegisterUser) error {
+func (usr *userService) Register(req models.RegisterUser) response.ErrorResponse {
 	if err := req.Validate(); err != nil {
-		return err
+		usr.logger.Error("failed to validate user data", zap.Error(err))
+		return response.ErrorResponse{
+			StatusCode: http.StatusBadRequest,
+			Message:    "validation failed",
+		}
 	}
 
 	user, _ := usr.userRepo.GetUserByNameOrPhone(req.Username, req.Phone)
 	if user.ID != "" {
 		if user.Username == req.Username {
-			return fmt.Errorf("username already exists")
+			usr.logger.Error("username already exists", zap.String("username", user.Username))
+			return response.ErrorResponse{
+				StatusCode: http.StatusConflict,
+				Message:    "username already exists",
+			}
 		}
-		return fmt.Errorf("phone alreaady registered")
+		usr.logger.Error("phone already registered", zap.String("phone", user.Phone))
+		return response.ErrorResponse{
+			StatusCode: http.StatusConflict,
+			Message:    "phone alreaady registered",
+		}
 	}
 
 	hashedPassword, err := utils.HashPassword(req.Password)
 	if err != nil {
-		return err
+        usr.logger.Error("failed to hash password", zap.Error(err))
+		return response.ErrorResponse{
+			StatusCode: http.StatusInternalServerError,
+			Message: "failed to hash password",
+		}
 	}
 
 	user = models.User{
@@ -53,10 +70,10 @@ func (usr *userService) Register(req models.RegisterUser) error {
 		CreatedAt: time.Now(),
 	}
 
-	err = usr.userRepo.Register(user)
+	errResp := usr.userRepo.Register(user)
 	if err != nil {
-		return err
+		return errResp
 	}
 
-	return nil
+	return response.ErrorResponse{}
 }
