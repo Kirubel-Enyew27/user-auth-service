@@ -17,7 +17,7 @@ import (
 func main() {
 	logger, _ := zap.NewDevelopment()
 
-	config, err := config.LoadConfig(".env")
+	config, err := config.LoadConfig()
 	if err != nil {
 		log.Fatalf("failed to load environmet variables: %v", err)
 	}
