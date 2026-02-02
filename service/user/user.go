@@ -52,10 +52,10 @@ func (usr *userService) Register(req models.RegisterUser) response.ErrorResponse
 
 	hashedPassword, err := utils.HashPassword(req.Password)
 	if err != nil {
-        usr.logger.Error("failed to hash password", zap.Error(err))
+		usr.logger.Error("failed to hash password", zap.Error(err))
 		return response.ErrorResponse{
 			StatusCode: http.StatusInternalServerError,
-			Message: "failed to hash password",
+			Message:    "failed to hash password",
 		}
 	}
 
@@ -71,7 +71,7 @@ func (usr *userService) Register(req models.RegisterUser) response.ErrorResponse
 	}
 
 	errResp := usr.userRepo.Register(user)
-	if err != nil {
+	if errResp.Message != "" {
 		return errResp
 	}
 
