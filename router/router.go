@@ -7,5 +7,5 @@ import (
 )
 
 func SetUpRoutes(router *gin.Engine, userHandler handler.User) {
-	// routes will be added here
+	router.POST("/user/register", userHandler.Register)
 }

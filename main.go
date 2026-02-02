@@ -5,10 +5,10 @@ import (
 	"log"
 	"user-auth-service/config"
 	"user-auth-service/db"
-	"user-auth-service/handler"
-	"user-auth-service/repo"
+	user_repo "user-auth-service/repo/user"
+	user_service "user-auth-service/service/user"
+	user_handler "user-auth-service/handler/user"
 	"user-auth-service/router"
-	"user-auth-service/service"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -27,9 +27,9 @@ func main() {
 		log.Fatalf("failed to connect database: %v", err)
 	}
 
-	repo := repo.NewRepo(db, logger)
-	service := service.NewService(repo, logger)
-	handler := handler.NewHandler(service, logger)
+	repo := user_repo.NewRepo(db, logger)
+	service := user_service.NewService(repo, logger)
+	handler := user_handler.NewHandler(service, logger)
 
 	r := gin.Default()
 
