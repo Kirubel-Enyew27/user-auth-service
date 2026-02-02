@@ -4,6 +4,7 @@ import (
 	"time"
 
 	validation "github.com/go-ozzo/ozzo-validation"
+	"github.com/go-ozzo/ozzo-validation/is"
 )
 
 type Role string
@@ -40,10 +41,10 @@ type RegisterUser struct {
 
 func (usr *RegisterUser) Validate() error {
 	err := validation.ValidateStruct(usr,
-		validation.Field(usr.Username, validation.Required, validation.Length(3, 0)),
+		validation.Field(usr.Username, validation.Required, validation.Length(3, 50)),
 		validation.Field(usr.Password, validation.Required, validation.Length(4, 8)),
 		validation.Field(usr.Phone, validation.Required),
-		validation.Field(usr.Email, validation.Required),
+		validation.Field(usr.Email, validation.Required, is.Email),
 		validation.Field(usr.Role, validation.Required),
 	)
 
