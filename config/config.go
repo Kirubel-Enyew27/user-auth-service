@@ -1,6 +1,9 @@
 package config
 
-import "github.com/spf13/viper"
+import (
+	"github.com/joho/godotenv"
+	"github.com/spf13/viper"
+)
 
 type Config struct {
 	POSTGRES_USERNAME string `mapstructure:"POSTGRES_USERNAME"`
@@ -11,17 +14,20 @@ type Config struct {
 	SERVER_ADDRESS    string `mapstructure:"SERVER_ADDRESS"`
 }
 
-func LoadConfig(path string) (config Config, err error) {
-	viper.AddConfigPath(path)
+func LoadConfig() (config Config, err error) {
+	err = godotenv.Load()
+	if err != nil {
+		return
+	}
 	viper.SetConfigType("env")
 
 	viper.AutomaticEnv()
 
-	err = viper.ReadInConfig()
-	if err != nil {
-		return
-	}
-
-	err = viper.Unmarshal(&config)
+	config.DB_NAME = viper.GetString("DB_NAME")
+	config.POSTGRES_USERNAME = viper.GetString("POSTGRES_USERNAME")
+	config.POSTGRES_PASSWORD = viper.GetString("POSTGRES_PASSWORD")
+	config.POSTGRES_HOST = viper.GetString("POSTGRES_HOST")
+	config.POSTGRES_PORT = viper.GetString("POSTGRES_PORT")
+	config.SERVER_ADDRESS = viper.GetString("SERVER_ADDRESS")
 	return
 }
