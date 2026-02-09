@@ -157,3 +157,25 @@ func (usr *userService) SuspendUser(id string) response.ErrorResponse {
 
 	return response.ErrorResponse{}
 }
+
+func (usr *userService) ActivateUser(id string) response.ErrorResponse {
+	user, errResp := usr.userRepo.GetUserByID(id)
+	if errResp.Message != "" || user.Username == "" {
+		return errResp
+	}
+
+	if user.Status == "active" {
+		usr.logger.Info("the user status is already active", zap.String("status", user.Status))
+		return response.ErrorResponse{
+			StatusCode: http.StatusConflict,
+			Message:    "user status is already active",
+		}
+	}
+
+	errResp = usr.userRepo.ActivateUser(id)
+	if errResp.Message != "" {
+		return errResp
+	}
+
+	return response.ErrorResponse{}
+}

@@ -11,4 +11,5 @@ type User interface {
 	GetUserByID(id string) (models.User, response.ErrorResponse)
 	UpdatePassword(id, newPasswordHash string) response.ErrorResponse
 	SuspendUser(id string) response.ErrorResponse
+	ActivateUser(id string) response.ErrorResponse
 }

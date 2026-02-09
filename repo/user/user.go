@@ -113,3 +113,15 @@ func (usr *userRepo) SuspendUser(id string) response.ErrorResponse {
 	}
 	return response.ErrorResponse{}
 }
+
+func (usr *userRepo) ActivateUser(id string) response.ErrorResponse {
+	_, err := usr.db.Exec("UPDATE users SET status=? WHERE id=?", models.StatusActive, id)
+	if err != nil {
+		usr.logger.Error("failed to activate user", zap.Error(err))
+		return response.ErrorResponse{
+			StatusCode: http.StatusInternalServerError,
+			Message:    err.Error(),
+		}
+	}
+	return response.ErrorResponse{}
+}

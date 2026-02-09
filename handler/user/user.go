@@ -106,3 +106,23 @@ func (usr *userHandler) SuspendUser(c *gin.Context) {
 
 	response.SendSuccessResponse(c, http.StatusOK, nil, nil)
 }
+
+func (usr *userHandler) ActivateUser(c *gin.Context) {
+	id := c.Param("id")
+	if id == "" {
+		usr.logger.Error("user id is not provided")
+		response.SendErrorResponse(c, &response.ErrorResponse{
+			StatusCode: http.StatusBadRequest,
+			Message:    "user id is not provided",
+		})
+		return
+	}
+
+	errResp := usr.userService.ActivateUser(id)
+	if errResp.Message != "" {
+		response.SendErrorResponse(c, &errResp)
+		return
+	}
+
+	response.SendSuccessResponse(c, http.StatusOK, nil, nil)
+}

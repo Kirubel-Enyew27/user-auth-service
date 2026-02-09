@@ -10,4 +10,5 @@ type User interface {
 	Login(req models.LoginRequest) (string, response.ErrorResponse)
 	ChangePassword(req models.ChangePassword) response.ErrorResponse
 	SuspendUser(id string) response.ErrorResponse
+	ActivateUser(id string) response.ErrorResponse
 }
