@@ -9,4 +9,5 @@ type User interface {
 	Register(user models.User) response.ErrorResponse
 	GetUserByNameOrPhone(username, phone string) (models.User, response.ErrorResponse)
 	GetUserByID(id string) (models.User, response.ErrorResponse)
+	UpdatePassword(id, newPasswordHash string) response.ErrorResponse
 }

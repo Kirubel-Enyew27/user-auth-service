@@ -89,3 +89,15 @@ func (usr *userRepo) GetUserByID(id string) (models.User, response.ErrorResponse
 
 	return user, response.ErrorResponse{}
 }
+
+func (usr *userRepo) UpdatePassword(id, newPasswordHash string) response.ErrorResponse {
+	_, err := usr.db.Exec("UPDATE users SET password=? WHERE id=?", newPasswordHash, id)
+	if err != nil {
+		usr.logger.Error("failed to update password", zap.Error(err))
+		return response.ErrorResponse{
+			StatusCode: http.StatusInternalServerError,
+			Message:    err.Error(),
+		}
+	}
+	return response.ErrorResponse{}
+}
