@@ -105,6 +105,7 @@ func (usr *userService) Login(req models.LoginRequest) (string, response.ErrorRe
 
 func (usr *userService) ChangePassword(req models.ChangePassword) response.ErrorResponse {
 	if err := req.Validate(); err != nil {
+		usr.logger.Error("validation failed", zap.Error(err))
 		return response.ErrorResponse{
 			StatusCode: http.StatusBadRequest,
 			Message:    "invalid user input: " + err.Error(),
@@ -118,13 +119,26 @@ func (usr *userService) ChangePassword(req models.ChangePassword) response.Error
 
 	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.OldPassword))
 	if err != nil {
+		usr.logger.Error("the password doesn't match", zap.Error(err))
 		return response.ErrorResponse{
 			StatusCode: http.StatusBadRequest,
 			Message:    "the password doesn't match",
 		}
 	}
 
-	// the new password will be updated here
+	newHashedPassword, err := utils.HashPassword(req.NewPassword)
+	if err != nil {
+		usr.logger.Error("failed to hash password", zap.Error(err))
+		return response.ErrorResponse{
+			StatusCode: http.StatusInternalServerError,
+			Message:    err.Error(),
+		}
+	}
+
+	errResp = usr.userRepo.UpdatePassword(req.ID, newHashedPassword)
+	if errResp.Message != "" {
+		return errResp
+	}
 
 	return response.ErrorResponse{}
 
