@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"time"
 	"user-auth-service/models"
 
@@ -20,4 +21,20 @@ func GenerateToken(user models.User) (string, error) {
 	}
 
 	return tokenString, nil
+}
+
+func ValidateToken(tokenString string) error {
+	token, err := jwt.ParseWithClaims(tokenString, jwt.MapClaims{}, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return viper.GetString("JWt_KEY"), nil
+	})
+	if err != nil {
+		return fmt.Errorf("error parsing token: %w", err)
+	}
+	if !token.Valid {
+		return fmt.Errorf("invalid token")
+	}
+	return nil
 }
