@@ -39,6 +39,11 @@ type RegisterUser struct {
 	Role     string `json:"role"`
 }
 
+type LoginRequest struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
 func (usr *RegisterUser) Validate() error {
 	err := validation.ValidateStruct(usr,
 		validation.Field(usr.Username, validation.Required, validation.Length(3, 50)),
@@ -49,4 +54,11 @@ func (usr *RegisterUser) Validate() error {
 	)
 
 	return err
+}
+
+func (auth *LoginRequest) Validate() error {
+	return validation.ValidateStruct(auth,
+		validation.Field(auth.Username, validation.Required),
+		validation.Field(auth.Password, validation.Required),
+	)
 }

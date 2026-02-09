@@ -77,3 +77,27 @@ func (usr *userService) Register(req models.RegisterUser) response.ErrorResponse
 
 	return response.ErrorResponse{}
 }
+
+func (usr *userService) Login(req models.LoginRequest) (string, response.ErrorResponse) {
+	if err := req.Validate(); err != nil {
+		return "", response.ErrorResponse{
+			StatusCode: http.StatusBadRequest,
+			Message:    "invalid user input: " + err.Error(),
+		}
+	}
+
+	user, errResp := usr.userRepo.GetUserByNameOrPhone(req.Username, "")
+	if errResp.Message != "" || user.Username == "" {
+		return "", errResp
+	}
+
+	token, err := utils.GenerateToken(user)
+	if err != nil {
+		return "", response.ErrorResponse{
+			StatusCode: http.StatusInternalServerError,
+			Message:    "failed to generate token: " + err.Error(),
+		}
+	}
+
+	return token, response.ErrorResponse{}
+}

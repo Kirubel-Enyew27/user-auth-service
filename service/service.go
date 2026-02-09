@@ -7,4 +7,5 @@ import (
 
 type User interface {
 	Register(req models.RegisterUser) response.ErrorResponse
+	Login(req models.LoginRequest) (string, response.ErrorResponse)
 }

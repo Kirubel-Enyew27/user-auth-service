@@ -44,3 +44,25 @@ func (usr *userHandler) Register(c *gin.Context) {
 	response.SendSuccessResponse(c, http.StatusCreated, nil, nil)
 
 }
+
+func (usr *userHandler) Login(c *gin.Context) {
+	var req models.LoginRequest
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		usr.logger.Error("failed to bind login request body", zap.Error(err))
+		response.SendErrorResponse(c, &response.ErrorResponse{
+			StatusCode: http.StatusBadRequest,
+			Message:    err.Error(),
+		})
+		return
+	}
+
+	token, errResp := usr.userService.Login(req)
+	if errResp.Message != "" {
+		response.SendErrorResponse(c, &errResp)
+		return
+	}
+
+	response.SendSuccessResponse(c, http.StatusOK, token, nil)
+
+}
