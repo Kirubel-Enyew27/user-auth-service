@@ -64,3 +64,28 @@ func (usr *userRepo) GetUserByNameOrPhone(username, phone string) (models.User, 
 
 	return user, response.ErrorResponse{}
 }
+
+func (usr *userRepo) GetUserByID(id string) (models.User, response.ErrorResponse) {
+	row, err := usr.db.Query("SELECT * FROM users WHERE id=?", id)
+	if err != nil {
+		usr.logger.Error("failed to get user by id", zap.Error(err))
+		return models.User{}, response.ErrorResponse{
+			StatusCode: http.StatusInternalServerError,
+			Message:    "failed to get user",
+		}
+	}
+	defer row.Close()
+
+	var user models.User
+
+	err = row.Scan(&user.ID, &user.Username, &user.Password, &user.Phone, &user.Email, &user.Role, &user.Status, &user.CreatedAt)
+	if err != nil {
+		usr.logger.Error("failed to scan user rows", zap.Error(err))
+		return models.User{}, response.ErrorResponse{
+			StatusCode: http.StatusInternalServerError,
+			Message:    "failed to scan user rows",
+		}
+	}
+
+	return user, response.ErrorResponse{}
+}

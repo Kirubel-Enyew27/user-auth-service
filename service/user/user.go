@@ -11,6 +11,7 @@ import (
 
 	"github.com/google/uuid"
 	"go.uber.org/zap"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type userService struct {
@@ -100,4 +101,31 @@ func (usr *userService) Login(req models.LoginRequest) (string, response.ErrorRe
 	}
 
 	return token, response.ErrorResponse{}
+}
+
+func (usr *userService) ChangePassword(req models.ChangePassword) response.ErrorResponse {
+	if err := req.Validate(); err != nil {
+		return response.ErrorResponse{
+			StatusCode: http.StatusBadRequest,
+			Message:    "invalid user input: " + err.Error(),
+		}
+	}
+
+	user, errResp := usr.userRepo.GetUserByID(req.ID)
+	if errResp.Message != "" || user.Username == "" {
+		return errResp
+	}
+
+	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.OldPassword))
+	if err != nil {
+		return response.ErrorResponse{
+			StatusCode: http.StatusBadRequest,
+			Message:    "the password doesn't match",
+		}
+	}
+
+	// the new password will be updated here
+
+	return response.ErrorResponse{}
+
 }

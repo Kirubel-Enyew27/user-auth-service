@@ -66,3 +66,23 @@ func (usr *userHandler) Login(c *gin.Context) {
 	response.SendSuccessResponse(c, http.StatusOK, token, nil)
 
 }
+
+func (usr *userHandler) ChangePassword(c *gin.Context) {
+	var req models.ChangePassword
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.SendErrorResponse(c, &response.ErrorResponse{
+			StatusCode: http.StatusBadRequest,
+			Message:    "failed to bind change password request body: " + err.Error(),
+		})
+		return
+	}
+
+	errResp := usr.userService.ChangePassword(req)
+	if errResp.Message != "" {
+		response.SendErrorResponse(c, &errResp)
+		return
+	}
+
+	response.SendSuccessResponse(c, http.StatusOK, nil, nil)
+}

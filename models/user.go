@@ -44,6 +44,12 @@ type LoginRequest struct {
 	Password string `json:"password"`
 }
 
+type ChangePassword struct {
+	ID          string `json:"id"`
+	OldPassword string `json:"old_password"`
+	NewPassword string `json:"new_password"`
+}
+
 func (usr *RegisterUser) Validate() error {
 	err := validation.ValidateStruct(usr,
 		validation.Field(usr.Username, validation.Required, validation.Length(3, 50)),
@@ -60,5 +66,13 @@ func (auth *LoginRequest) Validate() error {
 	return validation.ValidateStruct(auth,
 		validation.Field(auth.Username, validation.Required),
 		validation.Field(auth.Password, validation.Required),
+	)
+}
+
+func (pass *ChangePassword) Validate() error {
+	return validation.ValidateStruct(pass,
+		validation.Field(pass.ID, validation.Required),
+		validation.Field(pass.OldPassword, validation.Required),
+		validation.Field(pass.NewPassword, validation.Required, validation.Length(4, 8)),
 	)
 }
