@@ -101,3 +101,15 @@ func (usr *userRepo) UpdatePassword(id, newPasswordHash string) response.ErrorRe
 	}
 	return response.ErrorResponse{}
 }
+
+func (usr *userRepo) SuspendUser(id string) response.ErrorResponse {
+	_, err := usr.db.Exec("UPDATE users SET status=? WHERE id=?", models.StatusPending, id)
+	if err != nil {
+		usr.logger.Error("failed to suspend user", zap.Error(err))
+		return response.ErrorResponse{
+			StatusCode: http.StatusInternalServerError,
+			Message:    err.Error(),
+		}
+	}
+	return response.ErrorResponse{}
+}

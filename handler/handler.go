@@ -6,4 +6,5 @@ type User interface {
 	Register(c *gin.Context)
 	Login(c *gin.Context)
 	ChangePassword(c *gin.Context)
+	SuspendUser(c *gin.Context)
 }

@@ -10,4 +10,5 @@ type User interface {
 	GetUserByNameOrPhone(username, phone string) (models.User, response.ErrorResponse)
 	GetUserByID(id string) (models.User, response.ErrorResponse)
 	UpdatePassword(id, newPasswordHash string) response.ErrorResponse
+	SuspendUser(id string) response.ErrorResponse
 }

@@ -143,3 +143,17 @@ func (usr *userService) ChangePassword(req models.ChangePassword) response.Error
 	return response.ErrorResponse{}
 
 }
+
+func (usr *userService) SuspendUser(id string) response.ErrorResponse {
+	user, errResp := usr.userRepo.GetUserByID(id)
+	if errResp.Message != "" || user.Username == "" {
+		return errResp
+	}
+
+	errResp = usr.userRepo.SuspendUser(id)
+	if errResp.Message != "" {
+		return errResp
+	}
+
+	return response.ErrorResponse{}
+}
